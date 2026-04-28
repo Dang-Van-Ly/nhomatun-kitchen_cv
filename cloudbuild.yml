@@ -1,0 +1,26 @@
+# Cloud Build configuration
+# Automatically used when deploying with `gcloud run deploy --source .`
+# Build steps for Docker image
+steps:
+  # Build Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/quanli-goimon:latest'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/quanli-goimon:$SHORT_SHA'
+      - '.'
+
+  # Push to Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - 'gcr.io/$PROJECT_ID/quanli-goimon'
+
+images:
+  - 'gcr.io/$PROJECT_ID/quanli-goimon:latest'
+  - 'gcr.io/$PROJECT_ID/quanli-goimon:$SHORT_SHA'
+
+# Build timeout: 30 minutes
+timeout: '1800s'

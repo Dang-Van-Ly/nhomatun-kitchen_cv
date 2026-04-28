@@ -1,0 +1,21 @@
+# This file specifies files that should NOT be uploaded to Cloud
+# Includes common development/build files
+
+.git
+.gitignore
+node_modules
+npm-debug.log
+.DS_Store
+.vscode
+.idea
+*.swp
+*.swo
+*~
+.gradle
+build/
+.mvn/wrapper/maven-wrapper.jar
+target/
+.classpath
+.project
+.settings/
+*.log
