@@ -83,9 +83,17 @@ public class RMIServer {
     
     public static void main(String[] args) throws NamingException, RemoteException {
         Context context = new InitialContext();
-        String host = "rmi://THANHTRI:7551/";
         
-        LocateRegistry.createRegistry(7551);
+        // Đọc host và port từ biến môi trường, mặc định là localhost:7551
+        String rmiHost = System.getenv("RMI_HOST") != null ? System.getenv("RMI_HOST") : "localhost";
+        String rmiPortStr = System.getenv("RMI_PORT") != null ? System.getenv("RMI_PORT") : "7551";
+        int rmiPort = Integer.parseInt(rmiPortStr);
+        String host = "rmi://" + rmiHost + ":" + rmiPort + "/";
+        
+        // Đặt hostname cho RMI stub (quan trọng khi chạy trong Docker)
+        System.setProperty("java.rmi.server.hostname", rmiHost);
+        
+        LocateRegistry.createRegistry(rmiPort);
         
         BanDAO banDAO = new BanDAOImpl(Ban.class);
         ChiTietDatBanDAO chiTietDatBanDAO = new ChiTietDatBanDAOImpl(ChiTietDatBan.class);

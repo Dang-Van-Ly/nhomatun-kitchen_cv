@@ -1,0 +1,45 @@
+services:
+  # MariaDB Database
+  mariadb:
+    image: mariadb:10.11
+    container_name: atunkitchen-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: quanlidatbantrongnhahang
+    ports:
+      - "3306:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+      - ./scripts/script.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  # RMI Server
+  rmi-server:
+    build:
+      context: .
+      dockerfile: Dockerfile.rmi
+    image: atunkitchen-rmi-server
+    container_name: atunkitchen-rmi
+    restart: unless-stopped
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    environment:
+      # Kết nối DB qua tên service trong Docker network
+      DB_URL: jdbc:mariadb://mariadb:3306/quanlidatbantrongnhahang
+      DB_USER: root
+      DB_PASSWORD: root
+      # RMI_HOST = localhost để Swing GUI trên máy host kết nối được
+      RMI_HOST: localhost
+      RMI_PORT: 7551
+    ports:
+      - "7551:7551"
+
+volumes:
+  mariadb_data:

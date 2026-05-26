@@ -14,12 +14,27 @@ RUN mvn install:install-file -Dfile=libs/TimingFramework-0.55.jar \
         -Dversion=1 -Dpackaging=jar -q
 
 COPY pom.xml .
+# Download dependencies (cache layer)
+RUN mvn dependency:go-offline -q 2>/dev/null || true
+
 COPY src ./src
-RUN mvn clean package -DskipTests
+RUN mvn clean package -DskipTests -q
+
+# Extract Spring Boot fat JAR để chạy class tùy chỉnh
+RUN mkdir -p /app/extracted && \
+    cd /app/extracted && \
+    jar xf /app/target/*.jar
 
 # Runtime stage
 FROM eclipse-temurin:21-jdk-jammy
 WORKDIR /app
-COPY --from=builder /app/target/*.jar app.jar
-EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+
+# Copy extracted JAR contents
+COPY --from=builder /app/extracted/ ./
+
+EXPOSE 7551
+# Chạy RMIServer với classpath đầy đủ từ Spring Boot fat JAR đã extract
+# Dấu chấm (.) để tìm META-INF/persistence.xml ở root
+ENTRYPOINT ["java", \
+    "-cp", ".:BOOT-INF/classes:BOOT-INF/lib/*", \
+    "rmi.RMIServer"]
