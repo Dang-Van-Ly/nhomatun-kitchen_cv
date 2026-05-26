@@ -65,6 +65,13 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- H2 In-Memory Database (cho deploy demo) -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>2.2.224</version>
+        </dependency>
+
         <!-- JUnit Jupiter (for Testing) -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
